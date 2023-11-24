@@ -1,55 +1,65 @@
-rm(list=ls())
+## PREAMBLE: clear screen/workspace -----
+cat("\014"); rm(list = ls()); gc();
+# SET DEFAULTS: display options, font and y axis label rotation
+options(digits = 12); options(scipen = 999);  options(max.print=10000)
+# INSTALL PACMAN: if not installed (note: may neeD:\_teaching\_current.teaching\_SU.EFF\code-EFF\helper_functions\print_results.Rd to disable windows firewall for packages to install)
+if(!"pacman" %in% installed.packages()){install.packages("pacman")}
+# LOAD/INSTALL: other required packages
+pacman::p_load(tis,mFilter,nloptr,openxlsx)
+# LOAD HELPER FUNCTIONS STORED IN functions_path
+functions_path  = c("./helper_functions/")
+invisible(lapply( paste0(functions_path, list.files(functions_path, "*.R")), source ))
 
-# =================
-# DEFINE DIRECTORIES
-# =================
-
-# This directory should contain
-#   - an 'inputData' folder with data from the FRBNY site
-#   - an 'output' folder to store estimation results
-working.dir <- ''
-
-# Location of model code files
-code.dir    <- ''
-
-if ((working.dir=='') | (code.dir=='')) {
-  stop("Must specify working.dir and code.dir locations in run.hlw.us.R file")
-}
-
- # =================
-# LOAD R PACKAGES
-# =================
-
-if (!require("tis")) {install.packages("tis"); library("tis")} # Time series package
-if (!require("mFilter")) {install.packages("mFilter"); library("mFilter")} # HP filter
-if (!require("nloptr")) {install.packages("nloptr"); library("nloptr")} # Optimization
-if (!require("openxlsx")) {install.packages("openxlsx"); library("openxlsx")} # Input from and write to Excel
-
-# ==================
-# LOAD CODE PACKAGES
-# ==================
-
-setwd(code.dir)
-source("kalman.log.likelihood.R")
-source("kalman.states.R")
-source("kalman.standard.errors.R")
-source("median.unbiased.estimator.stage1.R")
-source("median.unbiased.estimator.stage2.R")
-source("kalman.states.wrapper.R")
-source("log.likelihood.wrapper.R")
-source("calculate.covariance.R")
-source("run.hlw.estimation.R")
-source("unpack.parameters.stage1.R")
-source("unpack.parameters.stage2.R")
-source("unpack.parameters.stage3.R")
-source("rstar.stage1.R")
-source("rstar.stage2.R")
-source("rstar.stage3.R")
-source("utilities.R")
-source("format.output.R")
-
-# Set working directory back to output location
-setwd(working.dir)
+# # =================
+# # DEFINE DIRECTORIES
+# # 
+# 
+# # This directory should contain
+# #   - an 'inputData' folder with data from the FRBNY site
+# #   - an 'output' folder to store estimation results
+# working.dir <- ''
+# 
+# # Location of model code files
+# code.dir    <- ''
+# 
+# if ((working.dir=='') | (code.dir=='')) {
+#   stop("Must specify working.dir and code.dir locations in run.hlw.us.R file")
+# }
+# 
+#  
+# # LOAD R PACKAGES
+# 
+# 
+# if (!require("tis")) {install.packages("tis"); library("tis")} # Time series package
+# if (!require("mFilter")) {install.packages("mFilter"); library("mFilter")} # HP filter
+# if (!require("nloptr")) {install.packages("nloptr"); library("nloptr")} # Optimization
+# if (!require("openxlsx")) {install.packages("openxlsx"); library("openxlsx")} # Input from and write to Excel
+# 
+# 
+# # LOAD CODE PACKAGES
+# 
+# 
+# setwd(code.dir)
+# source("kalman.log.likelihood.R")
+# source("kalman.states.R")
+# source("kalman.standard.errors.R")
+# source("median.unbiased.estimator.stage1.R")
+# source("median.unbiased.estimator.stage2.R")
+# source("kalman.states.wrapper.R")
+# source("log.likelihood.wrapper.R")
+# source("calculate.covariance.R")
+# source("run.hlw.estimation.R")
+# source("unpack.parameters.stage1.R")
+# source("unpack.parameters.stage2.R")
+# source("unpack.parameters.stage3.R")
+# source("rstar.stage1.R")
+# source("rstar.stage2.R")
+# source("rstar.stage3.R")
+# source("utilities.R")
+# source("format.output.R")
+# 
+# # Set working directory back to output location
+# setwd(working.dir)
 
 # =================
 # DEFINE VARIABLES (See Technical Note)
@@ -89,7 +99,7 @@ g.pot.start.index <- 1 + ti(shiftQuarter(sample.start,-3),'quarterly')-ti(data.s
 run.se <- TRUE
 
 # Set number of iterations for Monte Carlo standard error procedure
-niter <- 5000
+niter <- 50
 
 # =================
 # COVID-ADJUSTED MODEL SETTINGS
@@ -173,10 +183,7 @@ us.real.interest.rate     <- us.nominal.interest.rate - us.inflation.expectation
 us.covid.indicator        <- us.data$covid.ind
 
 
-# =================
-# ESTIMATION
-# =================
-
+# ESTIMATION =================
 us.estimation <- run.hlw.estimation(log.output=us.log.output,
                                     inflation=us.inflation,
                                     real.interest.rate=us.real.interest.rate,
@@ -204,10 +211,7 @@ one.sided.est.us <- cbind(us.estimation$out.stage3$rstar.filtered,
                           us.estimation$out.stage3$output.gap.filtered)
 
 
-# =================
-# OUTPUT
-# =================
-
+# OUTPUT =================
 # Set up output for export
 output.us <- format.output(country.estimation=us.estimation,
                            one.sided.est.country=one.sided.est.us,
