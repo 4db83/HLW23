@@ -67,7 +67,7 @@ run.hlw.estimation <- function(log.output,
   lambda.z <- median.unbiased.estimator.stage2(out.stage2$y, out.stage2$x, out.stage2$kappa.vec)
 
   # Running the stage 3 model
-  out.stage3 <- rstar.stage3(log.output=log.output,
+  out.stage3 <- rstar.stage3_O(log.output=log.output,
                             inflation=inflation,
                             real.interest.rate=real.interest.rate,
                             nominal.interest.rate=nominal.interest.rate,

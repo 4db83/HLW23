@@ -1,7 +1,7 @@
 ## PREAMBLE: clear screen/workspace -----
 cat("\014"); rm(list = ls()); gc();
 # SET DEFAULTS: display options, font and y axis label rotation
-options(digits = 12); options(scipen = 999);  options(max.print=10000)
+options(digits = 14); options(scipen = 999);  options(max.print=10000)
 # INSTALL PACMAN: if not installed (note: may neeD:\_teaching\_current.teaching\_SU.EFF\code-EFF\helper_functions\print_results.Rd to disable windows firewall for packages to install)
 if(!"pacman" %in% installed.packages()){install.packages("pacman")}
 # LOAD/INSTALL: other required packages
@@ -9,61 +9,6 @@ pacman::p_load(tis,mFilter,nloptr,openxlsx)
 # LOAD HELPER FUNCTIONS STORED IN functions_path
 functions_path  = c("./helper_functions/")
 invisible(lapply( paste0(functions_path, list.files(functions_path, "*.R")), source ))
-
-# # =================
-# # DEFINE DIRECTORIES
-# # 
-# 
-# # This directory should contain
-# #   - an 'inputData' folder with data from the FRBNY site
-# #   - an 'output' folder to store estimation results
-# working.dir <- ''
-# 
-# # Location of model code files
-# code.dir    <- ''
-# 
-# if ((working.dir=='') | (code.dir=='')) {
-#   stop("Must specify working.dir and code.dir locations in run.hlw.us.R file")
-# }
-# 
-#  
-# # LOAD R PACKAGES
-# 
-# 
-# if (!require("tis")) {install.packages("tis"); library("tis")} # Time series package
-# if (!require("mFilter")) {install.packages("mFilter"); library("mFilter")} # HP filter
-# if (!require("nloptr")) {install.packages("nloptr"); library("nloptr")} # Optimization
-# if (!require("openxlsx")) {install.packages("openxlsx"); library("openxlsx")} # Input from and write to Excel
-# 
-# 
-# # LOAD CODE PACKAGES
-# 
-# 
-# setwd(code.dir)
-# source("kalman.log.likelihood.R")
-# source("kalman.states.R")
-# source("kalman.standard.errors.R")
-# source("median.unbiased.estimator.stage1.R")
-# source("median.unbiased.estimator.stage2.R")
-# source("kalman.states.wrapper.R")
-# source("log.likelihood.wrapper.R")
-# source("calculate.covariance.R")
-# source("run.hlw.estimation.R")
-# source("unpack.parameters.stage1.R")
-# source("unpack.parameters.stage2.R")
-# source("unpack.parameters.stage3.R")
-# source("rstar.stage1.R")
-# source("rstar.stage2.R")
-# source("rstar.stage3.R")
-# source("utilities.R")
-# source("format.output.R")
-# 
-# # Set working directory back to output location
-# setwd(working.dir)
-
-# =================
-# DEFINE VARIABLES (See Technical Note)
-# =================
 
 # NOTE: the sample dates MUST correspond to data in input file
 
@@ -87,17 +32,13 @@ P.00.stage3 <- NA
 
 # Upper bound on a_3 parameter (slope of the IS curve)
 a.r.constraint <- -0.0025
-
 # Lower bound on b_2 parameter (slope of the Phillips curve)
 b.y.constraint <- 0.025
-
 # Set start index for g.pot series; used in state vector initialization
 g.pot.start.index <- 1 + ti(shiftQuarter(sample.start,-3),'quarterly')-ti(data.start,'quarterly')
-
 # Because the MC standard error procedure is time consuming, we include a run switch
 # Set run.se to TRUE to run the procedure
-run.se <- TRUE
-
+run.se <- FALSE
 # Set number of iterations for Monte Carlo standard error procedure
 niter <- 50
 
@@ -172,7 +113,7 @@ if (use.kappa) {
 # =================
 
 # Read input data from FRBNY website
-us.data <- read.xlsx("inputData/Holston_Laubach_Williams_estimates.xlsx", sheet="US input data",
+us.data <- read.xlsx("./inputData/Holston_Laubach_Williams_current_estimates.xlsx", sheet="US input data",
                       na.strings = ".", colNames=TRUE, rowNames=FALSE, detectDates = TRUE)
 
 us.log.output             <- us.data$gdp.log
@@ -204,14 +145,60 @@ us.estimation <- run.hlw.estimation(log.output=us.log.output,
                                     run.se=run.se,
                                     sample.end=sample.end)
 
-# One-sided (filtered) estimates
+# STATGE 3 only ----
+ 
+# invisible(lapply( paste0(functions_path, list.files(functions_path, "*.R")), source ))
+#  
+# # Signal-to-noise Ratios	
+# lambda.g	= 0.072769547
+# lambda.z	= 0.020609208
+# # write.table(out.stage3$xi.00,"xi00.csv", sep = ",", row.names = FALSE, col.names = FALSE)
+# # write.table(out.stage3$P.00,"P00.csv",   sep = ",", row.names = FALSE, col.names = FALSE)
+# xi00 = read.csv("./init.Vals/xi00.csv", header=FALSE)
+# # xi00 = c(810,810,810,1,1,1,0,0,0)
+# P00  = read.csv("./init.Vals/P00.csv" , header=FALSE)
+# # P00  = 0.2*diag(9)
+# 
+# startTime <- Sys.time()  
+# out.stage3 <- rstar.stage3(log.output=us.log.output,
+#                            inflation=us.inflation,
+#                            real.interest.rate=us.real.interest.rate,
+#                            nominal.interest.rate=us.nominal.interest.rate,
+#                            covid.indicator=us.covid.indicator,
+#                            lambda.g=lambda.g,
+#                            lambda.z=lambda.z,
+#                            a.r.constraint=a.r.constraint,
+#                            b.y.constraint=b.y.constraint,
+#                            g.pot.start.index=g.pot.start.index,
+#                            run.se=FALSE,
+#                            sample.end=sample.end,
+#                            use.kappa=use.kappa,
+#                            kappa.inputs=kappa.inputs,
+#                            fix.phi=fix.phi,
+#                            xi.00.stage3=as.matrix(xi00),
+#                            P.00.stage3=as.matrix(P00))
+# 
+# print(Sys.time() - startTime)
+# 
+# cat( " ALL DONE ")
+# 
+# aout = "HLW00.csv"
+# write.table(rbind(cbind(out.stage3$theta),out.stage3$log.likelihood),aout,row.names = FALSE, col.names = FALSE)
+# 
+
+#### One-sided (filtered) estimates --------
 one.sided.est.us <- cbind(us.estimation$out.stage3$rstar.filtered,
                           us.estimation$out.stage3$trend.filtered,
                           us.estimation$out.stage3$z.filtered,
                           us.estimation$out.stage3$output.gap.filtered)
 
+two.sided.est.us <- cbind(us.estimation$out.stage3$rstar.smoothed,
+                          us.estimation$out.stage3$trend.smoothed,
+                          us.estimation$out.stage3$z.smoothed,
+                          us.estimation$out.stage3$output.gap.smoothed)
 
-# OUTPUT =================
+
+#### OUTPUT =================
 # Set up output for export
 output.us <- format.output(country.estimation=us.estimation,
                            one.sided.est.country=one.sided.est.us,
@@ -220,5 +207,45 @@ output.us <- format.output(country.estimation=us.estimation,
                            end=sample.end,
                            run.se=run.se)
 
-# Save output to CSV
-write.table(output.us, 'output/output.us.csv', col.names=TRUE, quote=FALSE, row.names=FALSE, sep = ',', na = '')
+output.2.us <- format.output(country.estimation=us.estimation,
+                           one.sided.est.country=two.sided.est.us,
+                           real.rate.country=us.real.interest.rate,
+                           start=sample.start,
+                           end=sample.end,
+                           run.se=run.se)
+
+# Save output to CSV ENTIRE OUTPUT HERE
+# write.table(output.us,   'output/output.us.csv', col.names=TRUE, quote=FALSE, row.names=FALSE, sep = ',', na = '')
+# write.table(output.2.us, 'output/output.2.us.csv', col.names=TRUE, quote=FALSE, row.names=FALSE, sep = ',', na = '')
+
+
+#### WRITE FULL KF STATES TO CSV to check if KF of g(t) and g(t-1) as well as z(t) and z(t-1) are identical -----
+KFstates = us.estimation$out.stage3$states            # make KF data.frame to print to csv with headers and dates
+KF.df = as.data.frame(KFstates$filtered$xi.tt)        # remove xi rownames
+rownames(KF.df) = NULL                                # add proper column names for the states
+colnames(KF.df) = c("y*(t)","y*(t-1)","y*(t-2)","g(t)","g(t-1)","g(t-2)","z(t)","z(t-1)","z(t-2)")
+KF = data.frame(Date = us.data$date[5:nrow(us.data)]) # make df and join
+KF = cbind(KF,KF.df)                                  # write to CSV
+write.csv(KF,"KF.csv",row.names=FALSE)
+
+# repeat for Smoothed states
+KS.df = as.data.frame(KFstates$smoothed$xi.tT)
+rownames(KS.df) = NULL
+colnames(KS.df) = c("y*(t)","y*(t-1)","y*(t-2)","g(t)","g(t-1)","g(t-2)","z(t)","z(t-1)","z(t-2)")
+KS = data.frame(Date = us.data$date[5:nrow(us.data)])
+KS = cbind(KS,KS.df)
+write.csv(KS,"KS.csv",row.names=FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+

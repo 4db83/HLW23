@@ -8,7 +8,7 @@
 format.output <- function(country.estimation, one.sided.est.country, real.rate.country, start, end, run.se = TRUE) {
     output.country <- data.frame(matrix(NA,dim(one.sided.est.country)[1],28)) # if adding additional parameters, will need to adjust the output size
 
-    output.country[,1]   <- seq(from = (as.Date(ti(shiftQuarter(start,-1),'quarterly'))+1), to = (as.Date(ti(shiftQuarter(end,-1),tif='quarterly'))+1), by = 'quarter')
+    #output.country[,1]   <- seq(from = (as.Date(ti(shiftQuarter(start,-1),'quarterly'))+1), to = (as.Date(ti(shiftQuarter(end,-1),tif='quarterly'))+1), by = 'quarter')
     output.country[,2:4] <- one.sided.est.country[,1:3]
 
     # Output gap: In model with COVID indicator, this is the COVID-adjusted output gap

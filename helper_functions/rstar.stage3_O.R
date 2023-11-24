@@ -3,7 +3,7 @@
 #
 # Description: This file runs the model in the third stage of the HLW estimation.
 #------------------------------------------------------------------------------#
-rstar.stage3 <- function(log.output,
+rstar.stage3_O <- function(log.output,
                          inflation,
                          real.interest.rate,
                          nominal.interest.rate,
@@ -45,8 +45,6 @@ rstar.stage3 <- function(log.output,
     g.pot.diff <- diff(g.pot) # (data.start+1) : sample.end
     xi.00 <- c(100*g.pot[(g.pot.start.index+2):(g.pot.start.index)],100*g.pot.diff[(g.pot.start.index-1+2):((g.pot.start.index-1))],0,0,0)
   }
-
-  # xi.00 <- xi.00.stage3
 
   # IS curve, estimated by nonlinear LS:
   y.is     <- (output.gap[5:(t.end+4)])
@@ -183,7 +181,7 @@ rstar.stage3 <- function(log.output,
 
     }
   }
-  
+
   # Set the initial covariance matrix (see HLW 2017, footnote 6)
   if (any(is.na(P.00.stage1))) {
     print('Stage 2: Initializing covariance matrix')
@@ -194,10 +192,6 @@ rstar.stage3 <- function(log.output,
     print('Stage 2: Using P.00 input')
   }
 
-  # P.00 = P.00.stage3
-  
-  # browser()
-
   # Get parameter estimates via maximum likelihood
   f <- function(theta) {return(-log.likelihood.wrapper(parameters=theta, y.data=y.data, x.data=x.data, stage=stage,
                                                        lambda.g=lambda.g, lambda.z=lambda.z, xi.00=xi.00, P.00=P.00,
@@ -205,7 +199,7 @@ rstar.stage3 <- function(log.output,
                                                        param.num=param.num)$ll.cum)}
   nloptr.out <- nloptr(initial.parameters, f, eval_grad_f=function(x) {gradient(f, x)},
                        lb=theta.lb,ub=theta.ub,
-                       opts=list("print_level" = 1, "algorithm"="NLOPT_LD_LBFGS","xtol_rel"=1.0e-8,"maxeval"=5000 ))
+                       opts=list("algorithm"="NLOPT_LD_LBFGS","xtol_rel"=1.0e-8,"maxeval"=5000))
   theta <- nloptr.out$solution
 
   if (nloptr.out$status==-1 | nloptr.out$status==5) {
