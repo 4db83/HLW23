@@ -42,9 +42,7 @@ run.se <- FALSE
 # Set number of iterations for Monte Carlo standard error procedure
 niter <- 50
 
-# =================
-# COVID-ADJUSTED MODEL SETTINGS
-# =================
+# COVID-ADJUSTED MODEL SETTINGS =================
 
 # Set to TRUE if using time-varying volatility; FALSE if not
 # Must specify kappa.inputs if TRUE
@@ -56,9 +54,7 @@ use.kappa <- TRUE
 fix.phi <- NA
 
 
-# =================
-# VARIANCE SCALE PARAMETERS
-# =================
+# VARIANCE SCALE PARAMETERS =================
 
 # SETTINGS:
 # kappa.inputs DESCRIPTIONS:
@@ -108,63 +104,61 @@ if (use.kappa) {
 }
 
 
-# =================
-# INPUT DATA
-# =================
+# INPUT DATA =================
 
 # Read input data from FRBNY website
 us.data <- read.xlsx("./inputData/Holston_Laubach_Williams_current_estimates.xlsx", sheet="US input data",
                       na.strings = ".", colNames=TRUE, rowNames=FALSE, detectDates = TRUE)
-
-us.log.output             <- us.data$gdp.log
-us.inflation              <- us.data$inflation
-us.inflation.expectations <- us.data$inflation.expectations
-us.nominal.interest.rate  <- us.data$interest
-us.real.interest.rate     <- us.nominal.interest.rate - us.inflation.expectations
-us.covid.indicator        <- us.data$covid.ind
+# make data inputs 
+log.output             <- us.data$gdp.log
+inflation              <- us.data$inflation
+inflation.expectations <- us.data$inflation.expectations
+nominal.interest.rate  <- us.data$interest
+real.interest.rate     <- us.data$interest - us.data$inflation.expectations
+covid.indicator        <- us.data$covid.ind
 
 
 # ESTIMATION =================
-us.estimation <- run.hlw.estimation(log.output=us.log.output,
-                                    inflation=us.inflation,
-                                    real.interest.rate=us.real.interest.rate,
-                                    nominal.interest.rate=us.nominal.interest.rate,
-                                    covid.indicator=us.covid.indicator,
-                                    a.r.constraint=a.r.constraint,
-                                    b.y.constraint=b.y.constraint,
-                                    g.pot.start.index=g.pot.start.index,
-                                    use.kappa=use.kappa,
-                                    kappa.inputs=kappa.inputs,
-                                    fix.phi=fix.phi,
-                                    xi.00.stage1=xi.00.stage1,
-                                    xi.00.stage2=xi.00.stage2,
-                                    xi.00.stage3=xi.00.stage3,
-                                    P.00.stage1=P.00.stage1,
-                                    P.00.stage2=P.00.stage2,
-                                    P.00.stage3=P.00.stage3,
-                                    run.se=run.se,
-                                    sample.end=sample.end)
+# us.estimation <- run.hlw.estimation(log.output=us.log.output,
+#                                     inflation=us.inflation,
+#                                     real.interest.rate=us.real.interest.rate,
+#                                     nominal.interest.rate=us.nominal.interest.rate,
+#                                     covid.indicator=us.covid.indicator,
+#                                     a.r.constraint=a.r.constraint,
+#                                     b.y.constraint=b.y.constraint,
+#                                     g.pot.start.index=g.pot.start.index,
+#                                     use.kappa=use.kappa,
+#                                     kappa.inputs=kappa.inputs,
+#                                     fix.phi=fix.phi,
+#                                     xi.00.stage1=xi.00.stage1,
+#                                     xi.00.stage2=xi.00.stage2,
+#                                     xi.00.stage3=xi.00.stage3,
+#                                     P.00.stage1=P.00.stage1,
+#                                     P.00.stage2=P.00.stage2,
+#                                     P.00.stage3=P.00.stage3,
+#                                     run.se=run.se,
+#                                     sample.end=sample.end)
 
 # STATGE 3 only ----
  
-# invisible(lapply( paste0(functions_path, list.files(functions_path, "*.R")), source ))
-#  
-# # Signal-to-noise Ratios	
-# lambda.g	= 0.072769547
-# lambda.z	= 0.020609208
-# # write.table(out.stage3$xi.00,"xi00.csv", sep = ",", row.names = FALSE, col.names = FALSE)
-# # write.table(out.stage3$P.00,"P00.csv",   sep = ",", row.names = FALSE, col.names = FALSE)
-# xi00 = read.csv("./init.Vals/xi00.csv", header=FALSE)
-# # xi00 = c(810,810,810,1,1,1,0,0,0)
-# P00  = read.csv("./init.Vals/P00.csv" , header=FALSE)
-# # P00  = 0.2*diag(9)
-# 
-# startTime <- Sys.time()  
-# out.stage3 <- rstar.stage3(log.output=us.log.output,
-#                            inflation=us.inflation,
-#                            real.interest.rate=us.real.interest.rate,
-#                            nominal.interest.rate=us.nominal.interest.rate,
-#                            covid.indicator=us.covid.indicator,
+invisible(lapply( paste0(functions_path, list.files(functions_path, "*.R")), source ))
+
+# Signal-to-noise Ratios
+lambda.g	= 0.072769547
+lambda.z	= 0.020609208
+# write.table(out.stage3$xi.00,"xi00.csv", sep = ",", row.names = FALSE, col.names = FALSE)
+# write.table(out.stage3$P.00,"P00.csv",   sep = ",", row.names = FALSE, col.names = FALSE)
+xi.00 = as.matrix(read.csv("./init.Vals/xi00.csv", header=FALSE))
+# xi00 = c(810,810,810,1,1,1,0,0,0)
+P.00  = as.matrix(read.csv("./init.Vals/P00.csv" , header=FALSE))
+# P00  = 0.2*diag(9)
+
+# startTime <- Sys.time() ----
+# out.stage3 <- rstar.stage3(log.output=log.output,
+#                            inflation=inflation,
+#                            real.interest.rate=real.interest.rate,
+#                            nominal.interest.rate=nominal.interest.rate,
+#                            covid.indicator=covid.indicator,
 #                            lambda.g=lambda.g,
 #                            lambda.z=lambda.z,
 #                            a.r.constraint=a.r.constraint,
@@ -175,66 +169,110 @@ us.estimation <- run.hlw.estimation(log.output=us.log.output,
 #                            use.kappa=use.kappa,
 #                            kappa.inputs=kappa.inputs,
 #                            fix.phi=fix.phi,
-#                            xi.00.stage3=as.matrix(xi00),
-#                            P.00.stage3=as.matrix(P00))
+#                            xi.00.stage3=xi.00,
+#                            P.00.stage3=P.00)
 # 
 # print(Sys.time() - startTime)
 # 
 # cat( " ALL DONE ")
-# 
+# write.table(out.stage3$theta,"theta3.csv", sep = ",", row.names = FALSE, col.names = FALSE);
+
+theta3 = as.matrix(read.csv("theta3.csv", header = FALSE))
+
+# DO ONLY STAGE-3 FILTERING AND SMOOTHING, GIVEN THETA3, NO REESTIMATION ETC ----
+invisible(lapply( paste0(functions_path, list.files(functions_path, "*.R")), source ))
+theta   = out.stage3$theta
+y.data  = out.stage3$y.data
+x.data  = out.stage3$x.data
+stage   = 3
+kappa.inputs = out.stage3$kappa.inputs
+
+
+# MAKE DATA BY HAND as is done in rstar.stage3.R 
+t.end = length(log.output) - 4
+
+y.data <- cbind(100 * log.output[5:(t.end+4)],
+                       inflation[5:(t.end+4)])
+
+x.data <- cbind(100 * log.output[4:(t.end+3)],
+                100 * log.output[3:(t.end+2)],
+                real.interest.rate[4:(t.end+3)],
+                real.interest.rate[3:(t.end+2)],
+                inflation[4:(t.end+3)],
+                (inflation[3:(t.end+2)]+inflation[2:(t.end+1)]+inflation[1:t.end])/3,
+                covid.indicator[5:(t.end+4)],
+                covid.indicator[4:(t.end+3)],
+                covid.indicator[3:(t.end+2)])
+
+param.num <- c("a_y1"=1,"a_y2"=2,"a_r"=3,"b_pi"=4,"b_y"=5,"sigma_ygap"=6,"sigma_pi"=7,"sigma_ystar"=8,"phi"=9,"c"=10)
+Dates = us.data$date[5:nrow(us.data)]
+Stage3 <- kalman.states.wrapper(parameters=theta, y.data=y.data, x.data=x.data, stage=stage,
+                                lambda.g=lambda.g, lambda.z=lambda.z, xi.00=xi.00, P.00=P.00,
+                                use.kappa=use.kappa, kappa.inputs=kappa.inputs, param.num=param.num)
+ztt = as.matrix(4*Stage3$filtered$xi.tt[,7])
+ztT = as.matrix(4*Stage3$smoothed$xi.tT[,7])
+plot(Dates,ztt, las = 1, pch = 16, col = rgb(.1,.45,.75), ylim = c(-6,4), type = "l", lty = 1, lwd = 2,
+     ylab = "Other Factor z(t)", xlab = "Time")
+lines(ztT)
+abline(h = 0)
+# xgrd <- seq(1, length(Dates), length.out = 10)
+# # xgrd
+# axis(1, zt[xgrd,], labels = Dates[xgrd])
+
+
 # aout = "HLW00.csv"
 # write.table(rbind(cbind(out.stage3$theta),out.stage3$log.likelihood),aout,row.names = FALSE, col.names = FALSE)
-# 
+
 
 #### One-sided (filtered) estimates --------
-one.sided.est.us <- cbind(us.estimation$out.stage3$rstar.filtered,
-                          us.estimation$out.stage3$trend.filtered,
-                          us.estimation$out.stage3$z.filtered,
-                          us.estimation$out.stage3$output.gap.filtered)
-
-two.sided.est.us <- cbind(us.estimation$out.stage3$rstar.smoothed,
-                          us.estimation$out.stage3$trend.smoothed,
-                          us.estimation$out.stage3$z.smoothed,
-                          us.estimation$out.stage3$output.gap.smoothed)
-
-
-#### OUTPUT =================
-# Set up output for export
-output.us <- format.output(country.estimation=us.estimation,
-                           one.sided.est.country=one.sided.est.us,
-                           real.rate.country=us.real.interest.rate,
-                           start=sample.start,
-                           end=sample.end,
-                           run.se=run.se)
-
-output.2.us <- format.output(country.estimation=us.estimation,
-                           one.sided.est.country=two.sided.est.us,
-                           real.rate.country=us.real.interest.rate,
-                           start=sample.start,
-                           end=sample.end,
-                           run.se=run.se)
+# one.sided.est.us <- cbind(us.estimation$out.stage3$rstar.filtered,
+#                           us.estimation$out.stage3$trend.filtered,
+#                           us.estimation$out.stage3$z.filtered,
+#                           us.estimation$out.stage3$output.gap.filtered)
+# 
+# two.sided.est.us <- cbind(us.estimation$out.stage3$rstar.smoothed,
+#                           us.estimation$out.stage3$trend.smoothed,
+#                           us.estimation$out.stage3$z.smoothed,
+#                           us.estimation$out.stage3$output.gap.smoothed)
+# 
+# 
+# #### OUTPUT 
+# # Set up output for export
+# output.us <- format.output(country.estimation=us.estimation,
+#                            one.sided.est.country=one.sided.est.us,
+#                            real.rate.country=us.real.interest.rate,
+#                            start=sample.start,
+#                            end=sample.end,
+#                            run.se=run.se)
+# 
+# output.twosided.us <- format.output(country.estimation=us.estimation,
+#                            one.sided.est.country=two.sided.est.us,
+#                            real.rate.country=us.real.interest.rate,
+#                            start=sample.start,
+#                            end=sample.end,
+#                            run.se=run.se)
 
 # Save output to CSV ENTIRE OUTPUT HERE
 # write.table(output.us,   'output/output.us.csv', col.names=TRUE, quote=FALSE, row.names=FALSE, sep = ',', na = '')
-# write.table(output.2.us, 'output/output.2.us.csv', col.names=TRUE, quote=FALSE, row.names=FALSE, sep = ',', na = '')
+# write.table(output.twosided.us, 'output/output.2.us.csv', col.names=TRUE, quote=FALSE, row.names=FALSE, sep = ',', na = '')
 
 
 #### WRITE FULL KF STATES TO CSV to check if KF of g(t) and g(t-1) as well as z(t) and z(t-1) are identical -----
-KFstates = us.estimation$out.stage3$states            # make KF data.frame to print to csv with headers and dates
-KF.df = as.data.frame(KFstates$filtered$xi.tt)        # remove xi rownames
-rownames(KF.df) = NULL                                # add proper column names for the states
-colnames(KF.df) = c("y*(t)","y*(t-1)","y*(t-2)","g(t)","g(t-1)","g(t-2)","z(t)","z(t-1)","z(t-2)")
-KF = data.frame(Date = us.data$date[5:nrow(us.data)]) # make df and join
-KF = cbind(KF,KF.df)                                  # write to CSV
-write.csv(KF,"KF.csv",row.names=FALSE)
+# KFstates = us.estimation$out.stage3$states            # make KF data.frame to print to csv with headers and dates
+# KF.df = as.data.frame(KFstates$filtered$xi.tt)        # remove xi rownames
+# rownames(KF.df) = NULL                                # add proper column names for the states
+# colnames(KF.df) = c("y*(t)","y*(t-1)","y*(t-2)","g(t)","g(t-1)","g(t-2)","z(t)","z(t-1)","z(t-2)")
+# KF = data.frame(Date = us.data$date[5:nrow(us.data)]) # make df and join
+# KF = cbind(KF,KF.df)                                  # write to CSV
+# write.csv(KF,"KF.csv",row.names=FALSE)
 
 # repeat for Smoothed states
-KS.df = as.data.frame(KFstates$smoothed$xi.tT)
-rownames(KS.df) = NULL
-colnames(KS.df) = c("y*(t)","y*(t-1)","y*(t-2)","g(t)","g(t-1)","g(t-2)","z(t)","z(t-1)","z(t-2)")
-KS = data.frame(Date = us.data$date[5:nrow(us.data)])
-KS = cbind(KS,KS.df)
-write.csv(KS,"KS.csv",row.names=FALSE)
+# KS.df = as.data.frame(KFstates$smoothed$xi.tT)
+# rownames(KS.df) = NULL
+# colnames(KS.df) = c("y*(t)","y*(t-1)","y*(t-2)","g(t)","g(t-1)","g(t-2)","z(t)","z(t-1)","z(t-2)")
+# KS = data.frame(Date = us.data$date[5:nrow(us.data)])
+# KS = cbind(KS,KS.df)
+# write.csv(KS,"KS.csv",row.names=FALSE)
 
 
 
