@@ -1,55 +1,40 @@
-#------------------------------------------------------------------------------#
-# File:        get.US.data.R
-###############################################################################################################
-# Description: This file gets and prepares the data used in HLW for the US.
-# DB: source("modified.utilities.R") HAS MODFIED THEIR CALL TO GETFREDWGET AS IT DOES NOT WORK ON MY Machine
-###############################################################################################################
-
-
-
-
-rm(list = ls())
-# CLEAR THE CONSOLE
-cat("\014")
-# load helper functions
-path.2.functions = "./R.local.Functions/"
-source(paste0(path.2.functions,"./modified.utilities.R"))
-
-# LOAD REQUIRED LIBRARIES ----------------------------------------------------------------------------------------------
-# List of required packages
-pkgs <- c('zoo','tis')
-# get packages that are not installed
-get.pkgs <- pkgs[!pkgs %in% installed.packages()]
-if(!length(get.pkgs)==0){cat('Getting packages\n'); for(lib in get.pkgs) {install.packages(lib, dependencies = TRUE) } }
-sapply( get.pkgs, require, character = TRUE )
-# LOAD PACKAGES  
-cat('Loading packages\n')
-for(ii in pkgs) library(ii, character.only = TRUE)
+## PREAMBLE: clear screen/workspace -----
+cat("\014"); rm(list = ls()); gc();
+# SET DEFAULTS: display options, font and y axis label rotation
+options(digits = 14); options(scipen = 999);  options(max.print=10000)
+# INSTALL PACMAN: if not installed (note: may neeD:\_teaching\_current.teaching\_SU.EFF\code-EFF\helper_functions\print_results.Rd to disable windows firewall for packages to install)
+if(!"pacman" %in% installed.packages()){install.packages("pacman")}
+# LOAD/INSTALL: other required packages
+pacman::p_load(tis,mFilter,nloptr,openxlsx)
+# LOAD HELPER FUNCTIONS STORED IN functions_path
+functions_path  = c("./helper_functions/")
+invisible(lapply( paste0(functions_path, list.files(functions_path, "*.R")), source ))
 
 # SET TO ONE TO SAVE DATA TO CSV FILE
-save.data.2.csv     <- 0
-get.new.FRED.data   <- 0
-download.data.vintage = '2020.Oct.5'
+save.data.2.csv     <- 1
+get.new.FRED.data   <- 1
+download.data.vintage = '2023.Nov.27'
+# download.data.vintage = today()
 
 
 #------------------------------------------------------------------------------#
 # Get Raw Data
 #------------------------------------------------------------------------------#
 # SET THE START AND END DATES OF THE DATA USED IN THE ESTIMATION
-data.start      <- c(1947,1)
-data.end        <- c(2020,2)
+data.start      <- c(1960,1)
+data.end        <- c(2023,3)
 # Covert to strings
 data.beg.string <- paste0( toString(data.start[1]),"Q",toString(data.start[2])  )
 data.end.string <- paste0( toString(data.end[1])  ,"Q",toString(data.end[2])    )
 
 # OUTPUT FILE DIRs and NAMEs
 # main data store dir
-if (!dir.exists('../data/')) {dir.create('../data/')}
+if (!dir.exists('./inputData/')) {dir.create('./inputData/')}
 # raw source dir in main data store dir
-raw.source.dir  <- paste0('../data/R.source.data.',download.data.vintage,'/')
+raw.source.dir  <- paste0('./inputData/R.source.data.',download.data.vintage,'/')
 if (!dir.exists(raw.source.dir)) {dir.create(raw.source.dir)}
 # data store dir for Matlab and R
-store.data.dir  <- paste0('../data/R.data.for.estimation.',download.data.vintage,'/')
+store.data.dir  <- paste0('./inputData/R.data.for.estimation.',download.data.vintage,'/')
 save.file.name  <- paste0(store.data.dir, 'US.data.csv')
 
 #------------------------------------------------------------------------------#
@@ -68,9 +53,6 @@ if (get.new.FRED.data) {
   ## this is the 'new' series that I use which goes back to Nov 1914 to Jul 1969 (2012-08-20)
   new.ny.discount <- getFREDnoWget('https://fred.stlouisfed.org/data/M13009USM156NNBR.txt',	paste0(raw.source.dir, '/M13009USM156NNBR.txt'))
   fed.funds       <- getFREDnoWget('https://fred.stlouisfed.org/data/FEDFUNDS.txt'		    , paste0(raw.source.dir, '/FEDFUNDS.txt'))
-  # (TOTAL) Personal Consumption Expenditures: Chain-type Price Index (PCECTPI)	Quarterly series INCLUDES VOLATLIE ITMES
-  # this series is used in LW03 to splice data back to 1948.
-  pce.lw03        <- getFREDnoWget('https://fred.stlouisfed.org/data/PCECTPI.txt'         ,	paste0(raw.source.dir, '/PCECTPI.txt'))
 } else {
   # LOAD FROM FILES DOWNLOADED TO raw.source.dir
   raw.data.dir    <- raw.source.dir
@@ -79,8 +61,6 @@ if (get.new.FRED.data) {
   ny.discount     <- readFREDrawData(paste0(raw.data.dir, 'INTDSRUSM193N.txt'))
   new.ny.discount <- readFREDrawData(paste0(raw.data.dir, 'M13009USM156NNBR.txt'))
   fed.funds       <- readFREDrawData(paste0(raw.data.dir, 'FEDFUNDS.txt'))
-  # (TOTAL) Personal Consumption Expenditures: Chain-type Price Index (PCECTPI)	Quarterly series INCLUDES VOLATLIE ITMES # this series is used in LW03 to splice data back to 1948.
-  pce.lw03        <- readFREDrawData(paste0(raw.data.dir, 'PCECTPI.txt'))
 }
 
 #------------------------------------------------------------------------------#
@@ -90,11 +70,11 @@ if (get.new.FRED.data) {
 gdp.log         <- log(gdp)
 
 # Create an annualized inflation series 
-inflation.hlw   <- 400*log(pce.index/Lag(pce.index, k=1)) # HLW CORE PCE ONLY
-inflation.pce   <- 400*log(pce.lw03/Lag(pce.lw03, k=1))   # LW03 use also PCE to go back in time
+inflation   <- 400*log(pce.index/Lag(pce.index, k=1)) # HLW CORE PCE ONLY
+# inflation.pce   <- 400*log(pce.lw03/Lag(pce.lw03, k=1))   # LW03 use also PCE to go back in time
 # merge into one series. 
-inflation       <- mergeSeries(window(inflation.pce, end    = c(1959,1)) ,
-                               window(inflation.hlw, start  = c(1959,2)) )
+# inflation       <- mergeSeries(window(inflation.pce, end    = c(1959,1)) ,
+#                                window(inflation.hlw, start  = c(1959,2)) )
 # HLW: Inflation expectations measure: 4-quarter moving average of past inflation
 inflation.expectations  <- (    inflation       +
                             Lag(inflation, k=1) +

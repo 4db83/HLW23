@@ -185,13 +185,13 @@ rstar.stage3 <- function(log.output,
   }
   
   # Set the initial covariance matrix (see HLW 2017, footnote 6)
-  if (any(is.na(P.00.stage1))) {
-    print('Stage 2: Initializing covariance matrix')
+  if (any(is.na(P.00.stage3))) {
+    print('Stage 3: Initializing covariance matrix')
     P.00 <- calculate.covariance(initial.parameters=initial.parameters, theta.lb=theta.lb, theta.ub=theta.ub,
                                  y.data=y.data, x.data=x.data, stage=stage, lambda.g=lambda.g, lambda.z=lambda.z, xi.00=xi.00,
                                  use.kappa=use.kappa, kappa.inputs=kappa.inputs, param.num=param.num)
   } else {
-    print('Stage 2: Using P.00 input')
+    print('Stage 3: Using P.00 input')
   }
 
   # P.00 = P.00.stage3
