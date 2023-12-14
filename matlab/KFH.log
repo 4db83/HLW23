@@ -1,4 +1,4 @@
-This is pdfeTeXk, Version 3.141592-1.11a-2.1 (Web2c 7.5.2) (format=pdflatex_ml 2004.5.10)  5 DEC 2023 20:06
+This is pdfeTeXk, Version 3.141592-1.11a-2.1 (Web2c 7.5.2) (format=pdflatex_ml 2004.5.10)  8 DEC 2023 09:37
  %&-line parsing enabled.
  (c:\swp55\TCITeX/web2c/cp8bit.tcx)
 **&pdflatex_ml C:/Users/P1/AppData/Local/Temp/swp0000.tex
@@ -360,7 +360,7 @@ nts.map}{c:\swp55\TCITeX/pdftex/config/msi.map}] [2] (./swp0000.aux) )
 Here is how much of TeX's memory you used:
  4406 strings out of 95282
  56528 string characters out of 1187734
- 124756 words of memory out of 1572906
+ 125756 words of memory out of 1572906
  7354 multiletter control sequences out of 10000+50000
  44752 words of font info for 107 fonts, out of 1000000 for 2000
  22 hyphenation exceptions out of 1000
@@ -379,4 +379,4 @@ type1/uplri8a.pfb>{c:\swp55\TCITeX/fonts/type1/cmss12.enc}<c:\swp55\TCITeX/font
 s/truetype/cmss12.ttf><c:\swp55\TCITeX/fonts/type1/uplb8a.pfb>{c:\swp55\TCITeX/
 fonts/type1/dcss10.enc}<c:\swp55\TCITeX/fonts/truetype/dcss10.ttf><c:\swp55\TCI
 TeX/fonts/type1/uplr8a.pfb>
-Output written on swp0000.pdf (2 pages, 76684 bytes).
+Output written on swp0000.pdf (2 pages, 78048 bytes).

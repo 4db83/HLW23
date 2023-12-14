@@ -14,7 +14,7 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Tuesday, December 05, 2023 15:21:59}
-%TCIDATA{LastRevised=Tuesday, December 05, 2023 20:07:11}
+%TCIDATA{LastRevised=Friday, December 08, 2023 16:12:22}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
@@ -51,86 +51,87 @@
 \section{KF\ - Hamilton}
 
 The Kalman Filter/Smoother recursions following Hamilton's SSF format by HWL
-are:%
-\begin{align}
-\mathsf{Measurement}& :\quad \mathbf{y}_{t}=\mathbf{Ax}_{t}+\mathbf{H}%
-\boldsymbol{\xi }_{t}+\mathbf{R}^{1/2}\boldsymbol{\varepsilon }_{t}^{\mathbf{%
-y}} \\
-\mathsf{State}& :\quad \boldsymbol{\xi }_{t}=\mathbf{F}\boldsymbol{\xi }%
-_{t-1}+\mathbf{Q}^{1/2}\boldsymbol{\varepsilon }_{t}^{\boldsymbol{\xi }}
-\end{align}%
+are: 
+\begin{alignat}{2}
+\text{\textsf{Measurement}}& :\quad & \mathbf{y}_{t}& =\mathbf{Ax}_{t}+%
+\mathbf{H}\boldsymbol{\xi }_{t}+\mathbf{R}^{1/2}\boldsymbol{\varepsilon }%
+_{t}^{\mathbf{y}} \\
+\text{\textsf{State}}& :\quad & \boldsymbol{\xi }_{t}& =\mathbf{F}%
+\boldsymbol{\xi }_{t-1}+\mathbf{Q}^{1/2}\boldsymbol{\varepsilon }_{t}^{%
+\boldsymbol{\xi }}
+\end{alignat}
+
 The Kalman Filter recursions are:%
-\begin{align}
-\text{\textsf{Forecast of Measurement} }:\quad \mathbf{\hat{y}}_{t|t-1}& =%
-\mathbf{Ax}_{t}+\mathbf{H}\boldsymbol{\hat{\xi}}_{t|t-1}  \notag \\
-\text{\textsf{Forecast error}}:\quad \mathbf{\hat{u}}_{t|t-1}& =\mathbf{y}%
+\begin{alignat}{2}
+\text{\textsf{Forecasting}}& :\quad  & \mathbf{\hat{y}}_{t|t-1}& =\mathbf{Ax}%
+_{t}+\mathbf{H}\boldsymbol{\hat{\xi}}_{t|t-1} \\
+\text{\textsf{Forecast error}}& : & \mathbf{\hat{u}}_{t|t-1}& =\mathbf{y}%
 _{t}-\mathbf{\hat{y}}_{t|t-1} \\
-& =\mathbf{y}_{t}-\mathbf{Ax}_{t}-\mathbf{H}\boldsymbol{\hat{\xi}}_{t|t-1} 
-\notag \\
-\mathbf{K}_{t}& =\mathbf{P}_{t|t-1}\mathbf{H}^{\prime }(\mathbf{HP}_{t|t-1}%
-\mathbf{H}^{\prime }+\mathbf{R})^{-1} \\
+& & & =\mathbf{y}_{t}-\mathbf{Ax}_{t}-\mathbf{H}\boldsymbol{\hat{\xi}}%
+_{t|t-1} \\[3mm]
+\text{\textsf{(Near) Kalman Gain}}& :\quad  & \mathbf{K}_{t}& =\mathbf{P}%
+_{t|t-1}\mathbf{H}^{\prime }(\mathbf{HP}_{t|t-1}\mathbf{H}^{\prime }+\mathbf{%
+RR}^{\prime })^{-1} \\[3mm]
+\text{\textsf{State\ Filtering/Updating}}& :\quad  & \boldsymbol{\hat{\xi}}%
+_{t|t}& =\boldsymbol{\hat{\xi}}_{t|t-1}+\mathbf{K}_{t}\mathbf{\hat{u}}%
+_{t|t-1} \\
+& & \mathbf{P}_{t|t}& =\mathbf{P}_{t|t-1}-\mathbf{K}_{t}\mathbf{HP}_{t|t-1}
+\\[3mm]
+\text{\textsf{State Forecasting}}& :\quad  & \boldsymbol{\hat{\xi}}_{t+1|t}&
+=\mathbf{F}\boldsymbol{\hat{\xi}}_{t|t} \\
+& & \mathbf{P}_{t+1|t}& =\mathbf{FP}_{t|t}\mathbf{F}^{\prime }+\mathbf{QQ}%
+^{\prime } \\
+\text{\textsf{Kalman Gain}}& :\quad  & \mathbf{G}_{t}& =\mathbf{FK}_{t}
+\end{alignat}
+
+\bigskip 
+
+Steady-State Kalman Gain
+
+\begin{align*}
 \boldsymbol{\hat{\xi}}_{t|t}& =\boldsymbol{\hat{\xi}}_{t|t-1}+\mathbf{K}_{t}%
 \mathbf{\hat{u}}_{t|t-1} \\
-\mathbf{P}_{t|t}& =\mathbf{P}_{t|t-1}-\mathbf{K}_{t}\mathbf{HP}_{t|t-1} \\
-\boldsymbol{\hat{\xi}}_{t+1|t}& =\mathbf{F}\boldsymbol{\hat{\xi}}_{t|t} 
-\notag \\
-\mathbf{P}_{t+1|t}& =\mathbf{FP}_{t|t}\mathbf{F}^{\prime }+\mathbf{Q}  \notag
-\end{align}
-
-\bigskip
-
-\bigskip 
+& =\mathbf{F}\boldsymbol{\hat{\xi}}_{t|t}+\mathbf{K}_{t}\left( \mathbf{y}%
+_{t}-\mathbf{Ax}_{t}-\mathbf{H}\boldsymbol{\hat{\xi}}_{t|t-1}\right)  \\
+& =\mathbf{F}\boldsymbol{\hat{\xi}}_{t|t}+\mathbf{K}_{t}\left( \mathbf{y}%
+_{t}-\mathbf{Ax}_{t}-\mathbf{H}\boldsymbol{\hat{\xi}}_{t|t-1}\right)  \\
+&
+\end{align*}
 
 \bigskip 
-
-\bigskip 
-
-\bigskip 
-
-\bigskip 
-
-\bigskip 
-
-\bigskip 
-
-\bigskip 
-
-\bigskip
-
-\bigskip
 
 \bigskip where (note that I do not transpose $\mathbf{A}$ or $\mathbf{H}$ as
 it is not necessary):
 
 \begin{align*}
-\mathbf{y}_{t}& =%
+\mathbf{y}_{t}& = 
 \begin{bmatrix}
 y_{t} & \pi _{t}%
-\end{bmatrix}%
+\end{bmatrix}
 ^{\prime }, \\
-\mathbf{x}_{t}& =%
+\mathbf{x}_{t}& = 
 \begin{bmatrix}
 y_{t-1} & y_{t-2} & r_{t-1} & r_{t-2} & \pi _{t-1} & \pi _{t-2,4}%
-\end{bmatrix}%
+\end{bmatrix}
 ^{\prime }, \\
-\boldsymbol{\xi }_{t}& =%
+\boldsymbol{\xi }_{t}& = 
 \begin{bmatrix}
 y_{t}^{\ast } & y_{t-1}^{\ast } & y_{t-2}^{\ast } & g_{t-1} & g_{t-2} & 
 z_{t-1} & z_{t-2}%
-\end{bmatrix}%
+\end{bmatrix}
 ^{\prime }, \\
-\mathbf{A}& =%
+\mathbf{A}& = 
 \begin{bmatrix}
 a_{y,1} & a_{y,2} & \frac{a_{r}}{2} & \frac{a_{r}}{2} & 0 & 0 \\ 
 b_{y} & 0 & 0 & 0 & b_{\pi } & 1-b_{\pi }%
-\end{bmatrix}%
+\end{bmatrix}
 , \\
-\mathbf{H}& =%
+\mathbf{H}& = 
 \begin{bmatrix}
-1 & -a_{y,1} & -a_{y,2} & -4\frac{a_{r}}{2} & -4\frac{a_{r}}{2} & -\frac{%
+1 & -a_{y,1} & -a_{y,2} & -4\frac{a_{r}}{2} & -4\frac{a_{r}}{2} & -\frac{
 a_{r}}{2} & -\frac{a_{r}}{2} \\ 
 0 & -b_{y} & 0 & 0 & 0 & 0 & 0%
-\end{bmatrix}%
+\end{bmatrix}
 .
 \end{align*}
 
@@ -183,5 +184,31 @@ a_{r}}{2} & -\frac{a_{r}}{2} \\
 \bigskip
 
 \bigskip
+
+% \begin{align}
+% \text{\textsf{Forecast of Measurement} }:\quad \mathbf{\hat{y}}_{t|t-1}& =%
+% \mathbf{Ax}_{t}+\mathbf{H}\boldsymbol{\hat{\xi}}_{t|t-1}  \notag \\
+% \text{\textsf{Forecast error}}:\quad \mathbf{\hat{u}}_{t|t-1}& =\mathbf{y}%
+% _{t}-\mathbf{\hat{y}}_{t|t-1} \\
+% & =\mathbf{y}_{t}-\mathbf{Ax}_{t}-\mathbf{H}\boldsymbol{\hat{\xi}}_{t|t-1} 
+% \notag \\
+% \text{\textsf{Near Kalman Gain}}:\quad \mathbf{K}_{t}& =\mathbf{P}_{t|t-1}%
+% \mathbf{H}^{\prime }(\mathbf{HP}_{t|t-1}\mathbf{H}^{\prime }+\mathbf{R})^{-1}
+% \\
+% \text{\textsf{Filtered States}}:\quad \boldsymbol{\hat{\xi}}_{t|t}& =%
+% \boldsymbol{\hat{\xi}}_{t|t-1}+\mathbf{K}_{t}\mathbf{\hat{u}}_{t|t-1} \\
+% \mathbf{P}_{t|t}& =\mathbf{P}_{t|t-1}-\mathbf{K}_{t}\mathbf{HP}_{t|t-1} \\
+% \text{\textsf{Filtered States}}:\quad \boldsymbol{\hat{\xi}}_{t+1|t}& =%
+% \mathbf{F}\boldsymbol{\hat{\xi}}_{t|t}  \notag \\
+% \mathbf{P}_{t+1|t}& =\mathbf{FP}_{t|t}\mathbf{F}^{\prime }+\mathbf{Q}  \notag
+% \end{align}
+
+% \begin{align}
+% \text{\textsf{Measurement} }& :\quad \mathbf{y}_{t}=\mathbf{Ax}_{t}+\mathbf{H%
+% }\boldsymbol{\xi }_{t}+\mathbf{R}^{1/2}\boldsymbol{\varepsilon }_{t}^{%
+% \mathbf{y}} \\
+% \text{\textsf{State} }& :\quad \boldsymbol{\xi }_{t}=\mathbf{F}\boldsymbol{%
+% \xi }_{t-1}+\mathbf{Q}^{1/2}\boldsymbol{\varepsilon }_{t}^{\boldsymbol{\xi }}
+% \end{align}%
 
 \end{document}
